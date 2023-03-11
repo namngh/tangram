@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tangram</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .box {
+            position: absolute;
+            background: transparent;
+            z-index: 10;
+        }
+
+        .shadow-box {
+            position: absolute;
+            background: transparent;
+            z-index: 1;
+        }
+
+        .drag {
+            top: 0px;
+            left: 0px;
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            background: #966F33;
+            z-index: 100;
+            cursor: grab;
+        }
+
+        .rotate {
+            width: 15px;
+            height: 15px;
+            position: absolute;
+            border-radius: 50%;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .reflect {
+            width: 15px;
+            height: 15px;
+            position: absolute;
+            border-radius: 50%;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .button {
+            width: 100%;
+            height: 100%;
+        }
+
+        .box-1 {
+            top: 50px;
+            left: 400px;
+            width: 200px;
+            height: 100px;
+            transform-origin: 50px 50px;
+        }
+
+        .box-path-1 {
+            clip-path: polygon(0 0, 0% 100%, 50% 100%);
+        }
+
+        #rotate-1 {
+            top: -20px;
+            left: -20px;
+        }
+
+        #reflect-1 {
+            top: -20px;
+            left: 0px;
+        }
+
+        .box-2 {
+            top: 50px;
+            left: 600px;
+            width: 200px;
+            height: 100px;
+            transform-origin: 100px 50px;
+        }
+
+        .box-path-2 {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%);
+        }
+
+        #rotate-2 {
+            top: -20px;
+            right: -20px;
+        }
+
+        #reflect-2 {
+            top: -20px;
+            right: 0px;
+        }
+
+        .box-3 {
+            top: 250px;
+            left: 600px;
+            width: 200px;
+            height: 100px;
+            transform-origin: 158px 50px;
+        }
+
+        .box-path-3 {
+            clip-path: polygon(50% 0, 100% 0, 100% 100%, 29.289321881% 100%, 64.64466094% 29.289321881%);
+        }
+
+        #rotate-3 {
+            top: -20px;
+            right: -20px;
+        }
+
+        #reflect-3 {
+            top: -20px;
+            right: 0px;
+        }
+
+        .box-4 {
+            top: 250px;
+            left: 400px;
+            width: 200px;
+            height: 100px;
+            transform-origin: 65px 50px;
+        }
+
+        .box-path-4 {
+            clip-path: polygon(50% 0, 64.64466094% 29.289321881%, 29.289321881% 100%, 0 100%, 0 0);
+        }
+
+        #rotate-4 {
+            top: -20px;
+            left: -20px;
+        }
+
+        #reflect-4 {
+            top: -20px;
+            left: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="position: relative; width: 100vw; height: 100vh;" id="container">
+        <div class="shadow-box box-1" id="shadow-piece-1">
+            <div class="rotate" id="rotate-1">
+                <img class="button" src="assets/rotate.png">
+            </div>
+            <div class="reflect" id="reflect-1">
+                <img class="button" src="assets/reflect.png">
+            </div>
+        </div>
+
+        <div class="box box-1 box-path-1" id="piece-1">
+            <div class="drag box-path-1" id="drag-1"></div>
+        </div>
+
+        <div class="shadow-box box-2" id="shadow-piece-2">
+            <div class="rotate" id="rotate-2">
+                <img class="button" src="assets/rotate.png">
+            </div>
+            <div class="reflect" id="reflect-2">
+                <img class="button" src="assets/reflect.png">
+            </div>
+        </div>
+
+        <div class="box box-2 box-path-2" id="piece-2">
+            <div class="drag" id="drag-2"></div>
+        </div>
+
+        <div class="shadow-box box-3" id="shadow-piece-3">
+            <div class="rotate" id="rotate-3">
+                <img class="button" src="assets/rotate.png">
+            </div>
+            <div class="reflect" id="reflect-3">
+                <img class="button" src="assets/reflect.png">
+            </div>
+        </div>
+
+        <div class="box box-3 box-path-3" id="piece-3">
+            <div class="drag" id="drag-3"></div>
+        </div>
+
+        <div class="shadow-box box-4" id="shadow-piece-4">
+            <div class="rotate" id="rotate-4">
+                <img class="button" src="assets/rotate.png">
+            </div>
+            <div class="reflect" id="reflect-4">
+                <img class="button" src="assets/reflect.png">
+            </div>
+        </div>
+
+        <div class="box box-4 box-path-4" id="piece-4">
+            <div class="drag" id="drag-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const containerLeftPosition = container.getBoundingClientRect().left
+        const containerTopPosition = container.getBoundingClientRect().top
+        const containerWidth = container.getBoundingClientRect().width
+        const containerHeight = container.getBoundingClientRect().height
+        const transforms = [{
+            rotate: 0,
+            scaleY: 1
+        }, {
+            rotate: 0,
+            scaleY: 1
+        }, {
+            rotate: 0,
+            scaleY: 1
+        }, {
+            rotate: 0,
+            scaleY: 1
+        }]
+
+        const dragBox = (dragElem, pieceElem, shadowPieceElem) => {
+
+            const pieceWidth = pieceElem.getBoundingClientRect().width
+            const pieceHeight = pieceElem.getBoundingClientRect().height
+
+            let active = false
+            let _x, _y
+
+            dragElem.onmousedown = (e) => {
+                e.preventDefault();
+
+                const mouseX = e.clientX
+                const mouseY = e.clientY
+
+                const pieceLeftPosition = pieceElem.getBoundingClientRect().left
+                const pieceTopPosition = pieceElem.getBoundingClientRect().top;
+
+                _x = mouseX - pieceLeftPosition;
+                _y = mouseY - pieceTopPosition;
+
+                active = true;
+            }
+
+            document.addEventListener("mousemove", (e) => {
+                if (active) {
+                    e.preventDefault();
+
+                    const mouseX = e.clientX
+                    const mouseY = e.clientY
+
+                    const pieceLeftPosition = pieceElem.getBoundingClientRect().left
+                    const pieceTopPosition = pieceElem.getBoundingClientRect().top;
+
+                    let x, y;
+
+                    if (mouseX - _x > containerLeftPosition && mouseX + pieceWidth - containerLeftPosition < containerWidth + _x) {
+                        x = mouseX - _x - containerLeftPosition;
+                    }
+
+                    if (mouseX - _y > containerTopPosition && mouseY + pieceHeight - containerTopPosition < containerHeight + _y) {
+                        y = mouseY - _y - containerTopPosition;
+                    }
+
+                    pieceElem.style.left = x + 'px'
+                    pieceElem.style.top = y + 'px';
+
+                    shadowPieceElem.style.left = x + 'px'
+                    shadowPieceElem.style.top = y + 'px';
+                }
+            })
+
+            document.addEventListener("mouseup", () => {
+                active = false
+            })
+
+        }
+
+        const rotateBox = (rotateElem, pieceElem, shadowPieceElem, index) => {
+            const pieceWidth = pieceElem.getBoundingClientRect().width
+            const pieceHeight = pieceElem.getBoundingClientRect().height
+
+            let active = false
+            let angle = 0
+            let rotation = 0
+            let center = {}
+            let R2D = 180 / Math.PI
+
+            rotateElem.onmousedown = (e) => {
+                e.preventDefault();
+
+                const mouseX = e.clientX
+                const mouseY = e.clientY
+
+                const pieceLeftPosition = pieceElem.getBoundingClientRect().left - 35
+                const pieceTopPosition = pieceElem.getBoundingClientRect().top - 35;
+
+                center = {
+                    x: pieceLeftPosition + (pieceWidth / 2),
+                    y: pieceTopPosition + (pieceHeight / 2)
+                };
+
+                const x = mouseX - center.x;
+                const y = mouseY - center.y;
+
+                startAngle = R2D * Math.atan2(y, x);
+
+                active = true;
+            }
+
+            document.addEventListener("mousemove", (e) => {
+                if (active) {
+                    e.preventDefault();
+
+                    const mouseX = e.clientX
+                    const mouseY = e.clientY
+
+                    const x = mouseX - center.x
+                    const y = mouseY - center.y
+
+                    rotation = R2D * Math.atan2(y, x) - startAngle;
+
+                    transforms[index].rotate = roundAngle(angle + rotation)
+                    generateTransform(pieceElem, transforms[index])
+                    generateTransform(shadowPieceElem, transforms[index])
+                }
+            })
+
+            document.addEventListener("mouseup", () => {
+                angle += rotation;
+                active = false
+            })
+        }
+
+        const reflectBox = (reflectElem, pieceElem, shadowPieceElem, index) => {
+            let isOrigin = true
+
+            reflectElem.onclick = (e) => {
+                e.preventDefault();
+
+                isOrigin = !isOrigin
+
+                transforms[index].scaleY = isOrigin ? 1 : -1
+
+                generateTransform(pieceElem, transforms[index])
+                generateTransform(shadowPieceElem, transforms[index])
+            }
+        }
+
+        const roundAngle = (angle) => {
+            let isNegative = false
+            let newAngle = angle
+
+            if (angle < 0) {
+                isNegative = true
+                newAngle = -angle
+            }
+
+            newAngle = Math.round(newAngle)
+
+            let bound = newAngle % 45
+            console.log(bound)
+            if (bound <= 5) {
+                if (isNegative) {
+                    return -(newAngle - bound)
+                }
+
+                return newAngle - bound
+            } else if (bound >= 40) {
+                if (isNegative) {
+                    return -(newAngle + 45 - bound)
+                }
+
+                return newAngle + 45 - bound
+            }
+
+            return angle
+        }
+
+        const generateTransform = (elem, transform) => {
+            elem.style.webkitTransform = `rotate(${transform.rotate}deg) scaleX(${transform.scaleY})`
+        }
+
+        for (let i = 1; i <= 4; i++) {
+            pieceElem = document.getElementById(`piece-${i}`)
+            shadowPieceElem = document.getElementById(`shadow-piece-${i}`)
+            dragElem = document.getElementById(`drag-${i}`)
+            rotateElem = document.getElementById(`rotate-${i}`);
+            reflectElem = document.getElementById(`reflect-${i}`);
+
+            dragBox(dragElem, pieceElem, shadowPieceElem)
+            rotateBox(rotateElem, pieceElem, shadowPieceElem, i - 1)
+            reflectBox(reflectElem, pieceElem, shadowPieceElem, i - 1)
+        }
+    </script>
+</body>
+
+</html>
